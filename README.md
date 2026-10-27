@@ -1,3 +1,13 @@
+---
+title: Nivara Independent Living Companion
+emoji: 👵
+colorFrom: red
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Nivara — AI-Powered Independent Living & Safety Companion for Alzheimer's / MCI
 
 > **"Helping people with Alzheimer's live more independently, safely, and confidently."**  
