@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Outfit', sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #fafaf9;
+  color: #1c1917;
+}
+
+/* Custom accessible patient touch styles */
+.patient-card-touch {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.patient-card-touch:active {
+  transform: scale(0.98);
+}
+
+/* Calm Pulse Animation */
+@keyframes calm-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+.animate-calm-pulse {
+  animation: calm-pulse 3s infinite ease-in-out;
+}
