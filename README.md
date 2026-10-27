@@ -43,7 +43,7 @@ Human Caregiver Verifies & Decides
 
 ## 🌟 Complete Feature Map (Implemented in Repository)
 
-### 👵 1. Patient Experience (Sections 2, 3, 4, 11, 12, 13, 14, 27)
+### 👵 1. Patient Experience 
 - **Minimal Home Screen**:
   - `Good Morning ❤️`
   - `What would you like to do?`
@@ -67,7 +67,7 @@ Human Caregiver Verifies & Decides
 
 ---
 
-### 🛡️ 2. Intelligent Safety Engine & Multi-Guardian Network (Sections 17, 18, 19, 20, 23)
+### 🛡️ 2. Intelligent Safety Engine & Multi-Guardian Network
 - **Architectural Safety Rule** (Section 18):
   ```text
   Event → Rules + ML → Risk Priority → Patient Assistance → Alert Engine → Human
@@ -88,7 +88,7 @@ Human Caregiver Verifies & Decides
 
 ---
 
-### 👨‍⚕️ 3. Clinical Doctor Portal (Sections 18 & 21)
+### 👨‍⚕️ 3. Clinical Doctor Portal 
 - **14-Day Longitudinal Analytics (Recharts)**:
   - Routine Adherence % vs Medication Confirmation % vs Confusion Assistance Inquiries.
 - **Baseline Deviation Matrix**:
@@ -100,7 +100,7 @@ Human Caregiver Verifies & Decides
 
 ---
 
-### 🤖 4. AI, Machine Learning, RAG & Computer Vision (Sections 8, 9, 10, 14, 15, 16)
+### 🤖 4. AI, Machine Learning, RAG & Computer Vision 
 - **ChromaDB Vector Store RAG (`backend/app/ai/rag_engine.py`)**:
   - Indexes approved family memories, clinical notes, medications, and spatial object locations.
   - Runs with a deterministic offline dense vector embedding engine (`OfflineEmbeddingFunction`) with zero internet/HuggingFace download dependencies.
@@ -114,7 +114,7 @@ Human Caregiver Verifies & Decides
 
 ---
 
-## 🧪 5. Built-in Viva Demonstration Scenarios (Sections 36–40 & Section 47)
+## 🧪 5. Built-in Viva Demonstration Scenarios
 
 Click **"Simulate Event & Demo"** in the top navigation bar to trigger:
 
@@ -152,7 +152,7 @@ python -m pytest backend/tests/test_nivara.py -v
 
 ---
 
-## 🔒 Security & Privacy (Sections 24 & 25)
+## 🔒 Security & Privacy 
 - **Principle**: *Collect less → protect what you collect → show only what someone is authorized to see.*
 - Role-Based Access Control (Patient, Family, Nurse, Doctor, Emergency Contact).
 - Audit logging for all sensitive data access and alert acknowledgments.
