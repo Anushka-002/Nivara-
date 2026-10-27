@@ -107,5 +107,27 @@ def test_doctor_overview_endpoint():
     assert len(data["baseline_metrics"]) >= 4
     assert "CLINICAL NOTICE" in data["disclaimer"]
 
+def test_rag_knowledge_base():
+    from backend.app.ai.rag_engine import rag_engine
+    docs = rag_engine.retrieve_context("reading glasses", top_k=3)
+    assert len(docs) > 0
+    assert any("glasses" in d["text"].lower() for d in docs)
+
+def test_rag_query_endpoint():
+    res = client.post("/api/ai/rag/query", json={"query": "What did Nurse Anita note about my blood pressure?"})
+    assert res.status_code == 200
+    data = res.json()
+    assert "Anita" in data["spoken_text"] or "124" in data["spoken_text"]
+    assert len(data["retrieved_context"]) > 0
+
+def test_genai_note_entity_extraction():
+    sample_note = "Mrs. Sharma was in high spirits today. BP 124/80 mmHg, pulse 72 bpm. Ate oatmeal and papaya."
+    res = client.post("/api/ai/extract-note-entities", json={"note_text": sample_note})
+    assert res.status_code == 200
+    entities = res.json()["entities"]
+    assert entities["blood_pressure"] == "124/80"
+    assert "Oatmeal" in entities["dietary_items_noted"]
+    assert "Cheerful" in entities["patient_mood"]
+
 if __name__ == "__main__":
     pytest.main(["-v", __file__])

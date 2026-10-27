@@ -55,14 +55,14 @@ export const PatientHelp: React.FC<PatientHelpProps> = ({ onBack, onNavigate }) 
         </h1>
       </div>
 
-      {/* Gentle reassurance box */}
-      <div className="bg-rose-50 border-2 border-rose-200 rounded-3xl p-6 text-center space-y-2">
+      {/* Gentle reassurance box (Section 27) */}
+      <div className="bg-emerald-50 border-2 border-emerald-300 rounded-3xl p-6 text-center space-y-2">
         <span className="text-4xl">❤️</span>
-        <h2 className="text-2xl font-black text-rose-950">
-          Everything is okay.
+        <h2 className="text-2xl font-black text-emerald-950">
+          You are safe.
         </h2>
-        <p className="text-base sm:text-lg text-rose-900 font-semibold">
-          Tap what you need help with below, and Nivara will take care of you.
+        <p className="text-base sm:text-lg text-emerald-900 font-bold">
+          You are currently in your familiar home at 14 Green Valley.
         </p>
       </div>
 
@@ -80,47 +80,9 @@ export const PatientHelp: React.FC<PatientHelpProps> = ({ onBack, onNavigate }) 
         </div>
       )}
 
-      {/* 5 Big Help Choice Buttons */}
+      {/* 4 Big Direct Help Choices (Section 6 & 28) */}
       <div className="space-y-4">
-        {/* Choice 1: I don't know where I am */}
-        <button
-          onClick={() => handleHelpAction('lost', 'I will help you get home step by step.', 'navigation')}
-          disabled={loading}
-          className="patient-card-touch w-full p-5 sm:p-6 bg-white hover:bg-emerald-50 border-2 border-stone-300 hover:border-emerald-400 rounded-3xl shadow-sm flex items-center gap-4 sm:gap-6 text-left cursor-pointer"
-        >
-          <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-3xl shrink-0">
-            🏠
-          </div>
-          <div className="flex-1">
-            <h3 className="text-xl sm:text-2xl font-black text-stone-900">
-              I don't know where I am
-            </h3>
-            <p className="text-base text-stone-600 font-semibold mt-0.5">
-              Help me get home safely
-            </p>
-          </div>
-        </button>
-
-        {/* Choice 2: I need help with medicine */}
-        <button
-          onClick={() => handleHelpAction('medicine', 'Let us look at your medicines together.', 'my-medicine')}
-          disabled={loading}
-          className="patient-card-touch w-full p-5 sm:p-6 bg-white hover:bg-sky-50 border-2 border-stone-300 hover:border-sky-400 rounded-3xl shadow-sm flex items-center gap-4 sm:gap-6 text-left cursor-pointer"
-        >
-          <div className="w-16 h-16 rounded-2xl bg-sky-100 text-sky-800 flex items-center justify-center text-3xl shrink-0">
-            💊
-          </div>
-          <div className="flex-1">
-            <h3 className="text-xl sm:text-2xl font-black text-stone-900">
-              I need help with medicine
-            </h3>
-            <p className="text-base text-stone-600 font-semibold mt-0.5">
-              Check what pills to take now
-            </p>
-          </div>
-        </button>
-
-        {/* Choice 3: I want my family */}
+        {/* Choice 1: CALL MY FAMILY */}
         <button
           onClick={() => handleHelpAction('family', 'Connecting you to your daughter Priya.', 'my-people')}
           disabled={loading}
@@ -131,17 +93,55 @@ export const PatientHelp: React.FC<PatientHelpProps> = ({ onBack, onNavigate }) 
           </div>
           <div className="flex-1">
             <h3 className="text-xl sm:text-2xl font-black text-stone-900">
-              I want my family
+              CALL MY FAMILY
             </h3>
             <p className="text-base text-stone-600 font-semibold mt-0.5">
-              Call Priya or Rahul directly
+              Call your daughter Priya or son Rahul with one tap
             </p>
           </div>
         </button>
 
-        {/* Choice 4: Something is wrong */}
+        {/* Choice 2: CALL MY NURSE */}
         <button
-          onClick={() => handleHelpAction('emergency', 'Alerting your nurse Anita and family Priya immediately.')}
+          onClick={() => handleHelpAction('nurse', 'Connecting you to your visiting nurse Anita.', 'my-people')}
+          disabled={loading}
+          className="patient-card-touch w-full p-5 sm:p-6 bg-white hover:bg-teal-50 border-2 border-stone-300 hover:border-teal-400 rounded-3xl shadow-sm flex items-center gap-4 sm:gap-6 text-left cursor-pointer"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center text-3xl shrink-0">
+            👩‍⚕️
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl sm:text-2xl font-black text-stone-900">
+              CALL MY NURSE
+            </h3>
+            <p className="text-base text-stone-600 font-semibold mt-0.5">
+              Speak directly with Visiting Nurse Anita Roy
+            </p>
+          </div>
+        </button>
+
+        {/* Choice 3: GET HELP / GET HOME */}
+        <button
+          onClick={() => handleHelpAction('lost', 'I will help you get home step by step.', 'navigation')}
+          disabled={loading}
+          className="patient-card-touch w-full p-5 sm:p-6 bg-white hover:bg-emerald-50 border-2 border-stone-300 hover:border-emerald-400 rounded-3xl shadow-sm flex items-center gap-4 sm:gap-6 text-left cursor-pointer"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-3xl shrink-0">
+            🏠
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl sm:text-2xl font-black text-stone-900">
+              GET HELP / GO HOME
+            </h3>
+            <p className="text-base text-stone-600 font-semibold mt-0.5">
+              Follow 4 easy walking steps back to your front door
+            </p>
+          </div>
+        </button>
+
+        {/* Choice 4: EMERGENCY */}
+        <button
+          onClick={() => handleHelpAction('emergency', 'Alerting your entire care circle and emergency services immediately.')}
           disabled={loading}
           className="patient-card-touch w-full p-5 sm:p-6 bg-rose-100 hover:bg-rose-200 border-2 border-rose-400 rounded-3xl shadow-sm flex items-center gap-4 sm:gap-6 text-left cursor-pointer"
         >
@@ -150,10 +150,10 @@ export const PatientHelp: React.FC<PatientHelpProps> = ({ onBack, onNavigate }) 
           </div>
           <div className="flex-1">
             <h3 className="text-xl sm:text-2xl font-black text-rose-950">
-              Something is wrong
+              EMERGENCY
             </h3>
             <p className="text-base text-rose-900 font-bold mt-0.5">
-              Emergency assistance right away
+              Connect immediately to emergency services and all guardians
             </p>
           </div>
         </button>

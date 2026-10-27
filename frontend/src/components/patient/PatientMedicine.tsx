@@ -138,22 +138,51 @@ export const PatientMedicine: React.FC<PatientMedicineProps> = ({ onBack }) => {
                   <span>Prescribed by: <strong>{med.prescribed_by}</strong></span>
                 </div>
 
-                {/* Buttons: [YES, I TOOK IT] and [REMIND ME LATER] */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {/* Status: reminder sent vs confirmed (Section 5) */}
+                <div className="flex items-center justify-between text-xs px-3 py-2 rounded-xl bg-stone-100 border border-stone-200">
+                  <span className="font-bold text-stone-600">
+                    Reminder Status: <strong className="text-stone-900">🔔 Reminder Sent at {med.schedule_time}</strong>
+                  </span>
+                  <span className={`px-2.5 py-0.5 rounded-full font-extrabold ${
+                    med.is_pending_today
+                      ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                      : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                  }`}>
+                    {med.is_pending_today ? '⏳ Confirmation Pending' : '✓ Confirmed Taken'}
+                  </span>
+                </div>
+
+                {/* Buttons: [ I TOOK IT ], [ REMIND ME LATER ], [ I NEED HELP ] */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
                   <button
                     onClick={() => handleAction(med.id, 'taken')}
-                    className="patient-card-touch py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-lg flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                    className="patient-card-touch py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                   >
-                    <Check className="w-6 h-6 stroke-[3]" />
-                    <span>YES, I TOOK IT</span>
+                    <Check className="w-5 h-5 stroke-[3]" />
+                    <span>I TOOK IT</span>
                   </button>
 
                   <button
                     onClick={() => handleAction(med.id, 'remind_later')}
-                    className="patient-card-touch py-4 px-6 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-base flex items-center justify-center gap-2 border border-stone-300 cursor-pointer"
+                    className="patient-card-touch py-3.5 px-4 rounded-2xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-sm flex items-center justify-center gap-2 border border-stone-300 cursor-pointer"
                   >
-                    <Clock className="w-5 h-5" />
+                    <Clock className="w-4 h-4" />
                     <span>REMIND ME LATER</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const msg = `I have alerted your visiting nurse Anita to assist with your ${med.simple_name}.`;
+                      setFeedback(msg);
+                      if ('speechSynthesis' in window) {
+                        const u = new SpeechSynthesisUtterance(msg);
+                        u.rate = 0.9;
+                        window.speechSynthesis.speak(u);
+                      }
+                    }}
+                    className="patient-card-touch py-3.5 px-4 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold text-sm flex items-center justify-center gap-2 border border-rose-300 cursor-pointer"
+                  >
+                    <span>🆘 I NEED HELP</span>
                   </button>
                 </div>
               </div>

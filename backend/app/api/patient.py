@@ -293,31 +293,30 @@ def request_help(need_type: str, db: Session = Depends(get_db)):
 def ask_companion(req: AskCompanionRequest, db: Session = Depends(get_db)):
     patient = db.query(Patient).first()
 
-    # Build context
-    routine = db.query(Routine).filter(Routine.patient_id == patient.id, Routine.is_active == True).first()
-    next_task = "Lunch at 1:00 PM"
-    later_task = "Rest at 2:00 PM"
-    if routine:
-        tasks = db.query(RoutineTask).filter(RoutineTask.routine_id == routine.id, RoutineTask.is_completed == False).order_by(RoutineTask.order_index).all()
-        if tasks:
-            next_task = f"{tasks[0].title} at {tasks[0].time_of_day}"
-        if len(tasks) > 1:
-            later_task = f"{tasks[1].title} at {tasks[1].time_of_day}"
+    # Leverage RAG Vector Retrieval & GenAI Engine
+    from backend.app.ai.llm_engine import llm_engine
+    rag_result = llm_engine.rag_generate_response(req.query, patient_name=patient.preferred_name)
 
-    # Build object memories map
-    objs = db.query(ObjectMemory).filter(ObjectMemory.patient_id == patient.id).all()
-    obj_map = {o.object_name: {"location": o.last_seen_location} for o in objs}
+    # Determine suggested action & display card
+    action_target = rag_result.get("suggested_action")
+    action_url = f"/{action_target}" if action_target else None
 
-    context = {
-        "patient_name": patient.preferred_name,
-        "next_task": next_task,
-        "later_task": later_task,
-        "object_memories": obj_map,
-        "next_medication": "Evening Pink Pill at 7:00 PM"
-    }
+    # Card meta
+    card = None
+    if action_target:
+        card = {
+            "icon": "🧠",
+            "title": "Nivara RAG Context",
+            "subtitle": f"Retrieved from patient memory: {len(rag_result.get('retrieved_context', []))} verified facts",
+            "description": rag_result["spoken_text"]
+        }
 
-    response = companion_nlp.process_patient_query(req.query, context)
-    return CompanionResponse(**response)
+    return CompanionResponse(
+        spoken_text=rag_result["spoken_text"],
+        suggested_action="open_view" if action_url else None,
+        action_target=action_url,
+        display_card=card
+    )
 
 @router.get("/privacy")
 def get_privacy_transparency(db: Session = Depends(get_db)):

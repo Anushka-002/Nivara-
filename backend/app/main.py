@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.database import engine, Base
 from backend.app.seed_data import seed_database
-from backend.app.api import patient, guardian, doctor, simulation
+from backend.app.api import patient, guardian, doctor, simulation, ai_endpoints
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -39,6 +39,7 @@ app.include_router(patient.router)
 app.include_router(guardian.router)
 app.include_router(doctor.router)
 app.include_router(simulation.router)
+app.include_router(ai_endpoints.router)
 
 @app.get("/api/health")
 def health_check():

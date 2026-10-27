@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { api } from '../services/api';
 import {
   X, Sparkles, AlertTriangle, MapPin, Pill, HelpCircle,
-  RotateCcw, ChevronRight, ChevronLeft, ShieldCheck, CheckCircle2, UserCheck
+  RotateCcw, ChevronRight, ChevronLeft, ShieldCheck, CheckCircle2, UserCheck, BookOpen, Brain
 } from 'lucide-react';
 
 interface DemoSimulatorModalProps {
@@ -16,7 +16,7 @@ export const DemoSimulatorModal: React.FC<DemoSimulatorModalProps> = ({
   onClose,
   onStateChanged
 }) => {
-  const [activeTab, setActiveTab] = useState<'scenarios' | 'step_by_step'>('step_by_step');
+  const [activeTab, setActiveTab] = useState<'scenarios_1_5' | 'step_by_step' | 'scenarios'>('scenarios_1_5');
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(false);
   const [lastResult, setLastResult] = useState<any>(null);
@@ -57,7 +57,7 @@ export const DemoSimulatorModal: React.FC<DemoSimulatorModalProps> = ({
             <div>
               <h2 className="text-lg font-bold">Nivara Demo & Viva Scenario Runner</h2>
               <p className="text-xs text-amber-100">
-                Interactive simulator for Section 46 & 47 academic defense
+                Interactive simulator for Sections 36–40 (Scenarios 1–5) and Section 47
               </p>
             </div>
           </div>
@@ -69,33 +69,148 @@ export const DemoSimulatorModal: React.FC<DemoSimulatorModalProps> = ({
           </button>
         </div>
 
-        {/* Mode Selector */}
-        <div className="flex border-b border-stone-200 bg-stone-50 px-6 pt-3">
+        {/* Mode Selector Tabs */}
+        <div className="flex border-b border-stone-200 bg-stone-50 px-4 pt-3 overflow-x-auto text-xs sm:text-sm">
+          <button
+            onClick={() => setActiveTab('scenarios_1_5')}
+            className={`pb-3 px-3.5 font-bold transition border-b-2 cursor-pointer shrink-0 ${
+              activeTab === 'scenarios_1_5'
+                ? 'border-orange-600 text-orange-700'
+                : 'border-transparent text-stone-500 hover:text-stone-800'
+            }`}
+          >
+            🤖 Scenarios 1–5 (GenAI/RAG/Safety)
+          </button>
           <button
             onClick={() => setActiveTab('step_by_step')}
-            className={`pb-3 px-4 font-semibold text-sm transition border-b-2 cursor-pointer ${
+            className={`pb-3 px-3.5 font-bold transition border-b-2 cursor-pointer shrink-0 ${
               activeTab === 'step_by_step'
                 ? 'border-orange-600 text-orange-700'
                 : 'border-transparent text-stone-500 hover:text-stone-800'
             }`}
           >
-            📋 11-Step Full Demo Scenario (Section 47)
+            📋 11-Step Walkthrough (Section 47)
           </button>
           <button
             onClick={() => setActiveTab('scenarios')}
-            className={`pb-3 px-4 font-semibold text-sm transition border-b-2 cursor-pointer ${
+            className={`pb-3 px-3.5 font-bold transition border-b-2 cursor-pointer shrink-0 ${
               activeTab === 'scenarios'
                 ? 'border-orange-600 text-orange-700'
                 : 'border-transparent text-stone-500 hover:text-stone-800'
             }`}
           >
-            ⚡ 1-Click Event Triggers
+            ⚡ Fast Triggers
           </button>
         </div>
 
         {/* Modal Body */}
         <div className="p-6 max-h-[75vh] overflow-y-auto space-y-6">
-          {activeTab === 'step_by_step' ? (
+          {activeTab === 'scenarios_1_5' && (
+            <div className="space-y-4">
+              <p className="text-xs text-stone-500">
+                Demonstrate the five core AI/ML scenarios specified in Sections 36–40:
+              </p>
+
+              <div className="space-y-3">
+                {/* Scenario 1: GenAI + RAG */}
+                <div className="p-4 rounded-2xl border border-stone-200 bg-stone-50 hover:border-amber-400 transition space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase text-amber-700 tracking-wider">
+                      Demo Scenario 1: GenAI + RAG (Section 36)
+                    </span>
+                    <button
+                      onClick={() => runScenario('scenario_1_rag')}
+                      disabled={loading}
+                      className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      Run: "Who is Priya?"
+                    </button>
+                  </div>
+                  <p className="text-xs text-stone-700">
+                    Patient asks <strong>"Who is Priya?"</strong>. System performs ChromaDB semantic retrieval on approved memories and generates grounded response: <em>"Priya is your daughter. She usually visits you on Sundays."</em> (Zero hallucination).
+                  </p>
+                </div>
+
+                {/* Scenario 2: Daily Guidance */}
+                <div className="p-4 rounded-2xl border border-stone-200 bg-stone-50 hover:border-emerald-400 transition space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase text-emerald-700 tracking-wider">
+                      Demo Scenario 2: Daily Guidance (Section 37)
+                    </span>
+                    <button
+                      onClick={() => runScenario('scenario_2_guidance')}
+                      disabled={loading}
+                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      Run: "What should I do now?"
+                    </button>
+                  </div>
+                  <p className="text-xs text-stone-700">
+                    Patient asks <strong>"What should I do now?"</strong>. Retrieves today's routine and presents simple NOW / NEXT / LATER guidance: <em>"It is almost lunchtime. You can have some water first, then we'll remind you about lunch."</em>
+                  </p>
+                </div>
+
+                {/* Scenario 3: Safety */}
+                <div className="p-4 rounded-2xl border border-stone-200 bg-stone-50 hover:border-rose-400 transition space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase text-rose-700 tracking-wider">
+                      Demo Scenario 3: Safety Escalation (Section 38)
+                    </span>
+                    <button
+                      onClick={() => runScenario('scenario_3_safety')}
+                      disabled={loading}
+                      className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      Run: Safe Zone Departure
+                    </button>
+                  </div>
+                  <p className="text-xs text-stone-700">
+                    Patient leaves safe zone → Prompt sent: <em>"Would you like help getting home?"</em> → Unanswered → Configured guardian notified: <em>"Patient has remained outside the configured safe area for longer than expected and has not responded to the assistance prompt."</em>
+                  </p>
+                </div>
+
+                {/* Scenario 4: Object Finding */}
+                <div className="p-4 rounded-2xl border border-stone-200 bg-stone-50 hover:border-purple-400 transition space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase text-purple-700 tracking-wider">
+                      Demo Scenario 4: Object Finding (Section 39)
+                    </span>
+                    <button
+                      onClick={() => runScenario('scenario_4_object')}
+                      disabled={loading}
+                      className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      Run: "Where are my glasses?"
+                    </button>
+                  </div>
+                  <p className="text-xs text-stone-700">
+                    Patient asks <strong>"Where are my glasses?"</strong>. Vision/spatial memory looks up last observed record: <em>"I last saw your glasses on the living-room table."</em> (Explicitly noting last seen does not guarantee item hasn't moved).
+                  </p>
+                </div>
+
+                {/* Scenario 5: Caregiver AI Summary */}
+                <div className="p-4 rounded-2xl border border-stone-200 bg-stone-50 hover:border-sky-400 transition space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black uppercase text-sky-700 tracking-wider">
+                      Demo Scenario 5: Caregiver AI Summary (Section 40)
+                    </span>
+                    <button
+                      onClick={() => runScenario('scenario_5_caregiver_summary')}
+                      disabled={loading}
+                      className="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      Run: Daily Caregiver Summary
+                    </button>
+                  </div>
+                  <p className="text-xs text-stone-700">
+                    Generates end-of-day caregiver summary where <strong>every statement is traceable to actual recorded database events</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'step_by_step' && (
             <div>
               {/* Step indicator */}
               <div className="flex items-center justify-between mb-4">
@@ -184,12 +299,10 @@ export const DemoSimulatorModal: React.FC<DemoSimulatorModalProps> = ({
                 </button>
               </div>
             </div>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-xs text-stone-500">
-                Instantly trigger any scenario to test how the AI evaluates severity and routes only to the appropriate guardian:
-              </p>
+          )}
 
+          {activeTab === 'scenarios' && (
+            <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   onClick={() => runScenario('missed_medicine')}
@@ -269,16 +382,23 @@ export const DemoSimulatorModal: React.FC<DemoSimulatorModalProps> = ({
             </div>
           )}
 
-          {/* Execution feedback toast */}
+          {/* Execution feedback output */}
           {lastResult && (
-            <div className="bg-stone-900 text-stone-100 p-3.5 rounded-xl text-xs space-y-1">
+            <div className="bg-stone-900 text-stone-100 p-4 rounded-xl text-xs space-y-2">
               <div className="flex items-center justify-between text-amber-300 font-bold">
-                <span>Simulator Output (Real API Response):</span>
+                <span>Simulator Output:</span>
                 <span>{lastResult.scenario || `Step ${currentStep}`}</span>
               </div>
-              <p className="text-stone-300">
-                {lastResult.patient_message || lastResult.patient_prompt || lastResult.message || 'Action executed successfully.'}
+              <p className="text-stone-300 font-medium">
+                {lastResult.spoken_text || lastResult.patient_message || lastResult.patient_prompt || lastResult.message || 'Executed successfully.'}
               </p>
+              {lastResult.summary_points && (
+                <ul className="list-disc list-inside space-y-1 text-emerald-300 pt-1">
+                  {lastResult.summary_points.map((pt: string, idx: number) => (
+                    <li key={idx}>{pt}</li>
+                  ))}
+                </ul>
+              )}
               {lastResult.routed_to && (
                 <p className="text-emerald-300">
                   ✓ Routed to: {lastResult.routed_to.join(', ')}
@@ -329,29 +449,29 @@ function getStepActor(step: number): string {
 
 function getStepMessage(step: number): string {
   const msgs: Record<number, string> = {
-    1: 'Good morning, Mrs. Sharma ❤️ You are doing well today.',
-    2: 'It is time for your morning medicine. Did you take it?',
+    1: 'Good morning ❤️ What would you like to do?',
+    2: 'It is time for your medicine. Did you take it?',
     3: 'Take your time. Just a gentle reminder for your blue capsule.',
     4: 'Notice to Nurse Anita: Morning medicine has not yet been confirmed by Mrs. Sharma.',
     5: 'Motion sensor: Coordinates outside 150m Green Valley perimeter.',
-    6: 'Are you trying to go somewhere? I can help you get home.',
-    7: 'Alert to Priya: Mother is 750m outside safe perimeter. Prompt unanswered.',
+    6: 'Would you like help getting home?',
+    7: 'Alert to Priya: Patient has remained outside configured safe area and has not responded.',
     8: 'Guardian viewing live map: Patient is near Ring Road junction.',
     9: 'Priya acknowledged event: Connecting one-tap call to Mrs. Sharma.',
     10: 'Audit Logged: Guardian Priya verified patient safety at 6:42 PM.',
-    11: 'Welcome home, Mrs. Sharma ❤️ Alert automatically resolved.'
+    11: 'Welcome home ❤️ Alert automatically resolved.'
   };
   return msgs[step] || '';
 }
 
 function getStepPatientUI(step: number): string {
   const uis: Record<number, string> = {
-    1: 'Minimal screen: Greeting, Breakfast at 8:00 AM, 4 large buttons.',
-    2: 'Large blue pill card with [YES, I TOOK IT] / [REMIND ME LATER].',
+    1: 'Minimal screen: Good Morning, NOW/NEXT/LATER, 5 large buttons.',
+    2: 'Large blue pill card with [ I TOOK IT ] / [ REMIND ME LATER ] / [ I NEED HELP ].',
     3: 'Calm screen remains unchanged. No jarring sirens or flashing red lights.',
     4: 'Patient screen remains calm. No technical panic warnings.',
     5: 'Senses movement. Activates quiet background location check.',
-    6: 'Single large button: [🏠 HELP ME GET HOME] appears calmly.',
+    6: 'Single prompt: "Would you like help getting home?" with [ GO HOME ] button.',
     7: 'Step-by-step cognitive navigation: "Walk straight towards the pharmacy."',
     8: 'Friendly voice: "Walk straight. Turn right after the pharmacy."',
     9: 'Incoming call from Priya with photo & daughter label.',

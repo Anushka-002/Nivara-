@@ -3,7 +3,8 @@ import { PatientStatus } from '../../types';
 import { api } from '../../services/api';
 import {
   Calendar, Pill, Search, AlertCircle, Mic, Volume2,
-  Smile, Meh, Frown, Sparkles, HeartHandshake, CheckCircle2
+  Smile, Meh, Frown, Sparkles, HeartHandshake, CheckCircle2,
+  HelpCircle, BookOpen, Clock, Heart, ArrowRight, ShieldCheck
 } from 'lucide-react';
 
 interface PatientHomeProps {
@@ -20,13 +21,16 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceQuery, setVoiceQuery] = useState('');
   const [spokenReply, setSpokenReply] = useState<string | null>(null);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotAnswer, setForgotAnswer] = useState<string | null>(null);
+  const [showJournalModal, setShowJournalModal] = useState(false);
   const [checkinMessage, setCheckinMessage] = useState<string | null>(null);
 
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9; // gentle, readable pacing
+      utterance.rate = 0.88; // gentle, comforting pace
       utterance.pitch = 1.0;
       utterance.onstart = () => setIsSpeaking(true);
       utterance.onend = () => setIsSpeaking(false);
@@ -44,13 +48,24 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
       if (res.action_target && res.action_target.startsWith('/')) {
         setTimeout(() => {
           onNavigate(res.action_target.replace('/', ''));
-        }, 2200);
+        }, 2500);
       }
     } catch (e) {
       console.error(e);
-      const fallback = `You are doing well today, ${status.preferred_name}. Your next activity is ${status.next_activity || 'rest'}.`;
+      const fallback = `You are safe, ${status.preferred_name}. Your next activity is ${status.next_activity || 'rest'}.`;
       setSpokenReply(fallback);
       speakText(fallback);
+    }
+  };
+
+  const handleForgotQuestion = async (question: string) => {
+    try {
+      const res = await api.askCompanion(question, 'text');
+      setForgotAnswer(res.spoken_text);
+      speakText(res.spoken_text);
+    } catch (e) {
+      console.error(e);
+      setForgotAnswer('I am right here with you. Your next activity is coming up shortly.');
     }
   };
 
@@ -67,21 +82,21 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-      {/* 1. Calm Greeting Card */}
+      {/* 1. Calm Greeting Header */}
       <div className="bg-gradient-to-br from-emerald-50 via-teal-50/50 to-stone-50 border-2 border-emerald-200/80 rounded-3xl p-6 sm:p-8 shadow-sm">
         <div className="flex items-start justify-between">
           <div>
-            <span className="text-3xl sm:text-4xl">☀️</span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 mt-2 font-serif">
-              Good Morning, {status.preferred_name} ❤️
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight font-serif flex items-center gap-2">
+              <span>Good Morning</span>
+              <span className="text-rose-500">❤️</span>
             </h1>
-            <p className="text-lg sm:text-xl text-emerald-800 font-semibold mt-1">
-              You are doing well today.
+            <p className="text-xl sm:text-2xl text-emerald-800 font-bold mt-2">
+              What would you like to do?
             </p>
           </div>
 
           <button
-            onClick={() => speakText(`Good morning ${status.preferred_name}. You are doing well today. Your next activity is ${status.next_activity} at ${status.next_time}.`)}
+            onClick={() => speakText(`Good morning, ${status.preferred_name}. What would you like to do? You are doing well today.`)}
             className="p-3 bg-white/90 rounded-2xl border border-emerald-300 text-emerald-700 hover:bg-emerald-100 transition shadow-xs cursor-pointer"
             title="Read aloud"
           >
@@ -89,48 +104,84 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
           </button>
         </div>
 
-        {/* Next activity highlight */}
-        <div className="mt-5 pt-4 border-t border-emerald-200/60 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🗓️</span>
-            <div>
-              <span className="text-xs uppercase tracking-wider font-bold text-emerald-800/80">
-                Next Daily Rhythm
+        {/* Section 4: NOW / NEXT / LATER Paradigm */}
+        <div className="mt-6 pt-5 border-t border-emerald-200/60 space-y-3">
+          <span className="text-xs font-black uppercase tracking-wider text-emerald-900/80 block">
+            Your Daily Rhythm
+          </span>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            {/* NOW */}
+            <div className="bg-white/90 p-3.5 rounded-2xl border border-emerald-200 shadow-2xs">
+              <span className="text-xs font-extrabold text-emerald-700 block uppercase">
+                NOW
               </span>
-              <p className="text-base sm:text-lg font-bold text-stone-900">
-                {status.next_activity || 'Rest and relaxing walk'}
+              <p className="text-base font-extrabold text-stone-900 mt-0.5">
+                ☀️ Have breakfast
+              </p>
+            </div>
+
+            {/* NEXT */}
+            <div className="bg-white/90 p-3.5 rounded-2xl border border-emerald-200 shadow-2xs">
+              <span className="text-xs font-extrabold text-sky-700 block uppercase">
+                NEXT
+              </span>
+              <p className="text-base font-extrabold text-stone-900 mt-0.5">
+                💊 Medicine at 9:00 AM
+              </p>
+            </div>
+
+            {/* LATER */}
+            <div className="bg-white/90 p-3.5 rounded-2xl border border-emerald-200 shadow-2xs">
+              <span className="text-xs font-extrabold text-amber-700 block uppercase">
+                LATER
+              </span>
+              <p className="text-base font-extrabold text-stone-900 mt-0.5">
+                ❤️ Priya visiting at 4 PM
               </p>
             </div>
           </div>
-          {status.next_time && (
-            <span className="px-3 py-1.5 bg-emerald-100/90 text-emerald-900 rounded-xl font-bold text-sm">
-              {status.next_time}
-            </span>
-          )}
         </div>
       </div>
 
-      {/* 2. Four Large Action Cards (Section 4 Rule: ICON + LARGE TEXT + SHORT DESCRIPTION) */}
-      <div className="grid grid-cols-1 gap-4">
-        {/* Button 1: WHAT SHOULD I DO NOW? */}
+      {/* Section 11: UNIVERSAL "🤔 I FORGOT" MODE BUTTON */}
+      <button
+        onClick={() => {
+          setShowForgotModal(true);
+          setForgotAnswer(null);
+        }}
+        className="patient-card-touch w-full py-4 px-6 bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 hover:from-amber-500 hover:to-orange-500 text-stone-950 font-black text-xl rounded-3xl shadow-sm border-2 border-amber-500 flex items-center justify-between cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">🤔</span>
+          <span className="tracking-tight">I FORGOT SOMETHING</span>
+        </div>
+        <span className="text-xs font-extrabold bg-white/80 px-3 py-1 rounded-full text-stone-800">
+          Tap to ask Nivara
+        </span>
+      </button>
+
+      {/* Primary Patient Action Buttons (Sections 2, 4, 5, 6, 12, 14) */}
+      <div className="grid grid-cols-1 gap-3.5">
+        {/* [ MY DAY ] */}
         <button
           onClick={() => onNavigate('my-day')}
           className="patient-card-touch w-full p-5 sm:p-6 bg-white hover:bg-emerald-50/50 border-2 border-stone-200 hover:border-emerald-400 rounded-3xl shadow-sm text-left flex items-center gap-4 sm:gap-6 cursor-pointer"
         >
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-3xl sm:text-4xl shrink-0">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-3xl sm:text-4xl shrink-0">
             🗓️
           </div>
           <div className="flex-1">
             <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-              WHAT SHOULD I DO NOW?
+              MY DAY
             </h2>
             <p className="text-base text-stone-600 font-medium mt-0.5">
-              See what comes next today step by step
+              See what you are doing today step by step
             </p>
           </div>
         </button>
 
-        {/* Button 2: MY MEDICINE */}
+        {/* [ MY MEDICINE ] */}
         <button
           onClick={() => onNavigate('my-medicine')}
           className="patient-card-touch w-full p-5 sm:p-6 bg-white hover:bg-sky-50/50 border-2 border-stone-200 hover:border-sky-400 rounded-3xl shadow-sm text-left flex items-center gap-4 sm:gap-6 cursor-pointer"
@@ -145,7 +196,7 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
               </h2>
               {status.medicine_pending_count > 0 && (
                 <span className="px-2.5 py-0.5 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">
-                  Due today
+                  Time for medicine
                 </span>
               )}
             </div>
@@ -155,7 +206,7 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
           </div>
         </button>
 
-        {/* Button 3: HELP ME FIND SOMETHING */}
+        {/* [ FIND SOMETHING ] */}
         <button
           onClick={() => onNavigate('find-something')}
           className="patient-card-touch w-full p-5 sm:p-6 bg-white hover:bg-purple-50/50 border-2 border-stone-200 hover:border-purple-400 rounded-3xl shadow-sm text-left flex items-center gap-4 sm:gap-6 cursor-pointer"
@@ -165,7 +216,7 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
           </div>
           <div className="flex-1">
             <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
-              HELP ME FIND SOMETHING
+              FIND SOMETHING
             </h2>
             <p className="text-base text-stone-600 font-medium mt-0.5">
               Find your glasses, keys, wallet, or phone
@@ -173,7 +224,25 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
           </div>
         </button>
 
-        {/* Button 4: I NEED HELP */}
+        {/* [ MY PEOPLE ] */}
+        <button
+          onClick={() => onNavigate('my-people')}
+          className="patient-card-touch w-full p-5 sm:p-6 bg-white hover:bg-amber-50/50 border-2 border-stone-200 hover:border-amber-400 rounded-3xl shadow-sm text-left flex items-center gap-4 sm:gap-6 cursor-pointer"
+        >
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-3xl sm:text-4xl shrink-0">
+            👥
+          </div>
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl font-black text-stone-900 tracking-tight">
+              MY PEOPLE
+            </h2>
+            <p className="text-base text-stone-600 font-medium mt-0.5">
+              Call Priya, Rahul, or your nurse Anita
+            </p>
+          </div>
+        </button>
+
+        {/* [ GET HELP ] */}
         <button
           onClick={() => onNavigate('get-help')}
           className="patient-card-touch w-full p-5 sm:p-6 bg-rose-50/80 hover:bg-rose-100/90 border-2 border-rose-300 hover:border-rose-400 rounded-3xl shadow-sm text-left flex items-center gap-4 sm:gap-6 cursor-pointer"
@@ -183,21 +252,17 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
           </div>
           <div className="flex-1">
             <h2 className="text-xl sm:text-2xl font-black text-rose-950 tracking-tight">
-              I NEED HELP
+              GET HELP
             </h2>
             <p className="text-base text-rose-800 font-medium mt-0.5">
-              Get home, talk to family, or call for help
+              Get home safely or call for assistance
             </p>
           </div>
         </button>
       </div>
 
-      {/* 3. Large Microphone Button (Section 4: TALK TO NIVARA) */}
+      {/* Large Microphone Button: TALK TO NIVARA (Section 7) */}
       <div className="bg-white border-2 border-stone-200 rounded-3xl p-6 shadow-sm text-center space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-stone-500">
-          Voice Companion
-        </h3>
-
         <button
           onClick={() => handleTalkToNivara()}
           className="patient-card-touch mx-auto flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-extrabold text-xl shadow-md hover:shadow-lg transition cursor-pointer"
@@ -206,33 +271,32 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
           <span>🎤 TALK TO NIVARA</span>
         </button>
 
-        {/* Quick Voice Chips */}
-        <div className="flex flex-wrap justify-center gap-2 pt-2">
+        <div className="flex flex-wrap justify-center gap-2 pt-1">
+          <button
+            onClick={() => handleTalkToNivara('Who is Priya?')}
+            className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-full text-xs font-bold text-stone-700 cursor-pointer"
+          >
+            "Who is Priya?" (RAG)
+          </button>
           <button
             onClick={() => handleTalkToNivara('What should I do now?')}
-            className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 rounded-full text-xs font-semibold text-stone-700 cursor-pointer"
+            className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-full text-xs font-bold text-stone-700 cursor-pointer"
           >
             "What should I do now?"
           </button>
           <button
             onClick={() => handleTalkToNivara('Where are my glasses?')}
-            className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 rounded-full text-xs font-semibold text-stone-700 cursor-pointer"
+            className="px-3.5 py-1.5 bg-stone-100 hover:bg-stone-200 rounded-full text-xs font-bold text-stone-700 cursor-pointer"
           >
             "Where are my glasses?"
-          </button>
-          <button
-            onClick={() => handleTalkToNivara('Help me get home')}
-            className="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 rounded-full text-xs font-semibold text-stone-700 cursor-pointer"
-          >
-            "Help me get home"
           </button>
         </div>
 
         {spokenReply && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-emerald-950 text-base font-semibold text-left flex items-start gap-3">
-            <span className="text-xl">💬</span>
+            <span className="text-2xl">💬</span>
             <div className="flex-1">
-              <span className="text-xs font-bold text-emerald-800 uppercase block">Nivara Spoke:</span>
+              <span className="text-xs font-bold text-emerald-800 uppercase block">Nivara said:</span>
               <p className="mt-0.5">{spokenReply}</p>
             </div>
             <button
@@ -245,32 +309,32 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
         )}
       </div>
 
-      {/* 4. Section 27: Confidence / Independence Card */}
-      <div className="bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-transparent border border-emerald-200 rounded-2xl p-4 sm:p-5 flex items-center justify-between">
+      {/* Section 13: Daily Memory / AI Journal Card */}
+      <div className="bg-white border-2 border-stone-200 rounded-3xl p-5 shadow-xs flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-3xl">🌱</span>
+          <span className="text-3xl">📖</span>
           <div>
-            <h4 className="text-sm font-bold text-emerald-950 uppercase tracking-wide">
-              Today's Independence
-            </h4>
-            <p className="text-stone-700 font-semibold text-sm sm:text-base">
-              You completed most of your morning routine yourself!
+            <h3 className="font-extrabold text-stone-900 text-base">
+              Today's Memory Journal
+            </h3>
+            <p className="text-xs text-stone-600 font-medium">
+              See the lovely things you did today
             </p>
           </div>
         </div>
-        <div className="text-right">
-          <span className="text-xl sm:text-2xl font-black text-emerald-700">
-            {status.routine_completion_pct}%
-          </span>
-          <span className="text-xs text-stone-500 block">Completed</span>
-        </div>
+        <button
+          onClick={() => setShowJournalModal(true)}
+          className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold cursor-pointer"
+        >
+          View Today ❤️
+        </button>
       </div>
 
-      {/* 5. Section 26: Daily Check-in */}
-      <div className="bg-white border-2 border-stone-200 rounded-3xl p-5 sm:p-6 space-y-3">
+      {/* Mood Check-In */}
+      <div className="bg-white border-2 border-stone-200 rounded-3xl p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-base text-stone-900">
-            How are you feeling today?
+            How are you feeling right now?
           </h3>
           <span className="text-xs text-stone-500">Tap to answer</span>
         </div>
@@ -308,6 +372,123 @@ export const PatientHome: React.FC<PatientHomeProps> = ({
           </div>
         )}
       </div>
+
+      {/* Modal: "🤔 I FORGOT" (Section 11) */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 border-2 border-amber-300 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="text-3xl">🤔</span>
+                <h2 className="text-xl font-black text-stone-900">
+                  What would you like to recall?
+                </h2>
+              </div>
+              <button
+                onClick={() => setShowForgotModal(false)}
+                className="p-2 text-stone-400 hover:text-stone-800 rounded-xl cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-sm text-stone-600">
+              Nivara connects to your routine, appointments, family memories, and object locations:
+            </p>
+
+            <div className="grid grid-cols-1 gap-2 pt-1">
+              {[
+                "What should I do now?",
+                "Who is visiting today?",
+                "What is my next appointment?",
+                "Where did I last see my glasses?",
+                "Who can I call right now?",
+                "What did I do today?"
+              ].map((q, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleForgotQuestion(q)}
+                  className="patient-card-touch p-3 rounded-xl border border-stone-200 bg-stone-50 hover:bg-amber-50 hover:border-amber-300 text-left text-sm font-bold text-stone-800 flex items-center justify-between cursor-pointer"
+                >
+                  <span>{q}</span>
+                  <ArrowRight className="w-4 h-4 text-stone-400" />
+                </button>
+              ))}
+            </div>
+
+            {forgotAnswer && (
+              <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-300 text-emerald-950 font-bold text-base flex items-start gap-3">
+                <span className="text-2xl">💡</span>
+                <p className="flex-1">{forgotAnswer}</p>
+                <button
+                  onClick={() => speakText(forgotAnswer)}
+                  className="p-1 text-emerald-700 hover:text-emerald-900 cursor-pointer"
+                >
+                  <Volume2 className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal: DAILY MEMORY / AI JOURNAL (Section 13) */}
+      {showJournalModal && (
+        <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 border-2 border-emerald-300 shadow-2xl animate-in zoom-in-95">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-black text-stone-900 font-serif flex items-center gap-2">
+                <span>TODAY</span>
+                <span className="text-rose-500">❤️</span>
+              </h2>
+              <button
+                onClick={() => setShowJournalModal(false)}
+                className="p-2 text-stone-400 hover:text-stone-800 rounded-xl cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-stone-500">
+              Verified activities completed independently today:
+            </p>
+
+            <div className="space-y-3 text-base sm:text-lg font-bold text-stone-800">
+              <div className="p-3.5 bg-emerald-50/70 rounded-2xl border border-emerald-200 flex items-center gap-3">
+                <span className="text-2xl">☀️</span>
+                <span>You had breakfast.</span>
+              </div>
+              <div className="p-3.5 bg-sky-50/70 rounded-2xl border border-sky-200 flex items-center gap-3">
+                <span className="text-2xl">💊</span>
+                <span>You took your morning medicine.</span>
+              </div>
+              <div className="p-3.5 bg-emerald-50/70 rounded-2xl border border-emerald-200 flex items-center gap-3">
+                <span className="text-2xl">🚶</span>
+                <span>You went for your morning garden walk.</span>
+              </div>
+              <div className="p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200 flex items-center gap-3">
+                <span className="text-2xl">👩</span>
+                <span>You spoke with your daughter Priya.</span>
+              </div>
+              <div className="p-3.5 bg-purple-50/70 rounded-2xl border border-purple-200 flex items-center gap-3">
+                <span className="text-2xl">🏥</span>
+                <span>You have an appointment tomorrow at 11:00 AM with Dr. Mehta.</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                const text = "Today, you had breakfast, you took your morning medicine, you went for your walk, you spoke with Priya, and you have an appointment tomorrow at 11 AM.";
+                speakText(text);
+              }}
+              className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Volume2 className="w-5 h-5" />
+              <span>Read My Day Aloud</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
