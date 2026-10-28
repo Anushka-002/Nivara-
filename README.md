@@ -4,7 +4,7 @@ emoji: 👵
 colorFrom: red
 colorTo: blue
 sdk: gradio
-sdk_version: 4.44.1
+sdk_version: 5.16.0
 app_file: app.py
 pinned: false
 ---
@@ -169,4 +169,5 @@ python -m pytest backend/tests/test_nivara.py -v
 - Audit logging for all sensitive data access and alert acknowledgments.
 - Transparent consent management (*"Who can see my information?"*).
 - Environment variable isolation (`.env.example`).
+
 
