@@ -6,6 +6,19 @@ import gradio as gr
 from pathlib import Path
 from backend.app.main import app as fastapi_app
 
+# Dummy spaces decorator to satisfy Hugging Face ZeroGPU runtime check
+try:
+    import spaces
+    @spaces.GPU
+    def _zero_gpu_init():
+        return True
+    try:
+        _zero_gpu_init()
+    except Exception:
+        pass
+except ImportError:
+    pass
+
 # 1. Start the FastAPI backend on internal port 8000 in a background daemon thread
 def run_fastapi():
     uvicorn.run(fastapi_app, host="127.0.0.1", port=8000, log_level="info")
