@@ -7,7 +7,7 @@ __pycache__/
 .Python
 
 # Build & Cache
-frontend/dist/
+# frontend/dist/ is tracked for direct cloud/Hugging Face deployment
 frontend/node_modules/
 .pytest_cache/
 .vite/
